@@ -1,29 +1,27 @@
-#include "DFRobot_SHT20.h"
+#include "SHT20.h"
 
-void DFRobot_SHT20::initSHT20(TwoWire &wirePort)
+void SHT20::initSHT20()
 {
-    i2cPort = &wirePort;
-    i2cPort->begin();
 }
 
-uint16_t DFRobot_SHT20::readValue(byte cmd)
+uint16_t SHT20::readValue(byte cmd)
 {
-    i2cPort->beginTransmission(SLAVE_ADDRESS);
-    i2cPort->write(cmd);
-    i2cPort->endTransmission();
+    Wire.beginTransmission(SLAVE_ADDRESS);
+    Wire.write(cmd);
+    Wire.endTransmission();
     byte toRead;
     byte counter;
     for(counter = 0, toRead = 0 ; counter < MAX_COUNTER && toRead != 3; counter++){
         delay(DELAY_INTERVAL);
-        toRead = i2cPort->requestFrom(SLAVE_ADDRESS, 3);
+        toRead = Wire.requestFrom(SLAVE_ADDRESS, 3);
     }
     if(counter == MAX_COUNTER){
         return (ERROR_I2C_TIMEOUT);
     }
     byte msb, lsb, checksum;
-    msb = i2cPort->read();
-    lsb = i2cPort->read();
-    checksum = i2cPort->read();
+    msb = Wire.read();
+    lsb = Wire.read();
+    checksum = Wire.read();
     uint16_t rawValue = ((uint16_t) msb << 8) | (uint16_t) lsb;
     if(checkCRC(rawValue, checksum) != 0){
         return (ERROR_BAD_CRC);
@@ -31,7 +29,7 @@ uint16_t DFRobot_SHT20::readValue(byte cmd)
     return rawValue & 0xFFFC;
 }
 
-float DFRobot_SHT20::readHumidity(void)
+float SHT20::readHumidity(void)
 {
     uint16_t rawHumidity = readValue(TRIGGER_HUMD_MEASURE_NOHOLD);
     if(rawHumidity == ERROR_I2C_TIMEOUT || rawHumidity == ERROR_BAD_CRC){
@@ -42,7 +40,7 @@ float DFRobot_SHT20::readHumidity(void)
     return (rh);
 }
 
-float DFRobot_SHT20::readTemperature(void)
+float SHT20::readTemperature(void)
 {
     uint16_t rawTemperature = readValue(TRIGGER_TEMP_MEASURE_NOHOLD);
     if(rawTemperature == ERROR_I2C_TIMEOUT || rawTemperature == ERROR_BAD_CRC){
@@ -53,7 +51,7 @@ float DFRobot_SHT20::readTemperature(void)
     return (realTemperature);
 }
 
-void DFRobot_SHT20::setResolution(byte resolution)
+void SHT20::setResolution(byte resolution)
 {
     byte userRegister = readUserRegister();
     userRegister &= B01111110;
@@ -62,26 +60,26 @@ void DFRobot_SHT20::setResolution(byte resolution)
     writeUserRegister(userRegister);
 }
 
-byte DFRobot_SHT20::readUserRegister(void)
+byte SHT20::readUserRegister(void)
 {
     byte userRegister;
-    i2cPort->beginTransmission(SLAVE_ADDRESS);
-    i2cPort->write(READ_USER_REG);
-    i2cPort->endTransmission();
-    i2cPort->requestFrom(SLAVE_ADDRESS, 1);
-    userRegister = i2cPort->read();
+    Wire.beginTransmission(SLAVE_ADDRESS);
+    Wire.write(READ_USER_REG);
+    Wire.endTransmission();
+    Wire.requestFrom(SLAVE_ADDRESS, 1);
+    userRegister = Wire.read();
     return (userRegister);
 }
 
-void DFRobot_SHT20::writeUserRegister(byte val)
+void SHT20::writeUserRegister(byte val)
 {
-    i2cPort->beginTransmission(SLAVE_ADDRESS);
-    i2cPort->write(WRITE_USER_REG);
-    i2cPort->write(val);
-    i2cPort->endTransmission();
+    Wire.beginTransmission(SLAVE_ADDRESS);
+    Wire.write(WRITE_USER_REG);
+    Wire.write(val);
+    Wire.endTransmission();
 }
 
-byte DFRobot_SHT20::checkCRC(uint16_t message_from_sensor, uint8_t check_value_from_sensor)
+byte SHT20::checkCRC(uint16_t message_from_sensor, uint8_t check_value_from_sensor)
 {
     uint32_t remainder = (uint32_t)message_from_sensor << 8;
     remainder |= check_value_from_sensor;
@@ -95,7 +93,7 @@ byte DFRobot_SHT20::checkCRC(uint16_t message_from_sensor, uint8_t check_value_f
     return (byte)remainder;
 }
 
-void DFRobot_SHT20::showReslut(const char *prefix, int val)
+void SHT20::showReslut(const char *prefix, int val)
 {
     Serial.print(prefix);
     if(val){
@@ -105,10 +103,10 @@ void DFRobot_SHT20::showReslut(const char *prefix, int val)
     }
 }
 
-void DFRobot_SHT20::checkSHT20(void)
+void SHT20::checkSHT20(void)
 {
     byte reg = readUserRegister();
-    showReslut("End of battery: ", reg & USER_REGISTER_END_OF_BATTERY);
-    showReslut("Heater enabled: ", reg & USER_REGISTER_HEATER_ENABLED);
-    showReslut("Disable OTP reload: ", reg & USER_REGISTER_DISABLE_OTP_RELOAD);
+    showReslut("SHT20 end of battery: ", reg & USER_REGISTER_END_OF_BATTERY);
+    showReslut("SHT20 heater enabled: ", reg & USER_REGISTER_HEATER_ENABLED);
+    showReslut("SHT20 disable OTP reload: ", reg & USER_REGISTER_DISABLE_OTP_RELOAD);
 }

@@ -37,7 +37,7 @@ public:
     void     checkSHT20(void);
     void     setResolution(byte resBits);
     void     writeUserRegister(byte val);
-    void     initSHT20(TwoWire &wirePort = Wire);
+    void     initSHT20(void);
     void     showReslut(const char *prefix, int val);
     float    readHumidity(void);
     float    readTemperature(void);

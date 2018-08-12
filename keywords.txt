@@ -6,7 +6,7 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-DFRobot_SHT20	KEYWORD1
+SHT20	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)

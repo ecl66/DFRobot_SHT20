@@ -1,5 +1,5 @@
-#ifndef DFRobot_SHT20_h
-#define DFRobot_SHT20_h
+#ifndef SHT20_h
+#define SHT20_h
 
 #if defined(ARDUINO) && ARDUINO >= 100
  #include "Arduino.h"

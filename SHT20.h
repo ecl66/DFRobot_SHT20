@@ -31,7 +31,7 @@
 #define SHIFTED_DIVISOR                       0x988000
 #define MAX_COUNTER                           (MAX_WAIT/DELAY_INTERVAL)
 
-class DFRobot_SHT20 
+class SHT20 
 {
 public:
     void     checkSHT20(void);
@@ -44,7 +44,6 @@ public:
     byte     readUserRegister(void);
 
 private:
-    TwoWire *i2cPort;
     byte     checkCRC(uint16_t message_from_sensor, uint8_t check_value_from_sensor);
     uint16_t readValue(byte cmd);
 };
